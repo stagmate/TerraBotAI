@@ -110,11 +110,12 @@
     const ndviChart = document.getElementById('ndvi-chart');
 
     let farmDefined = false;
-    // --- NEW: Store the current state of farm data ---
+    // --- MODIFIED: Added location to the farm data object ---
     let farmData = {
         soilMoisture: 0,
         ndvi: 0,
-        rainfall: 0
+        rainfall: 0,
+        location: "Not set" 
     };
 
     // --- Event Listeners ---
@@ -147,12 +148,14 @@
         
         setTimeout(() => {
              mapPrompt.innerHTML = `<p class="text-sm bg-green-700 text-white p-2 rounded">Ready to provide insights!</p>`;
+             // --- MODIFIED: Set a simulated location when the farm is defined ---
+             farmData.location = "Kookas, Rajasthan, India";
              farmData.soilMoisture = 0.35;
              farmData.ndvi = 0.82;
              updateDashboard(farmData.soilMoisture, farmData.ndvi);
         }, 1500);
 
-         addBotMessage("Great! Your farm is defined. I have analyzed the latest NASA data. What would you like to know?");
+         addBotMessage(`Great! Your farm near ${farmData.location} is defined. I have analyzed the latest NASA data. What would you like to know?`);
     }
 
     // --- MODIFIED: Make this function async to await the AI response ---
@@ -166,25 +169,21 @@
         }
     }
 
-    // --- DEPRECATED: This function is replaced by the GenAI function below ---
-    /*
-    function processUserQuery(query) { ... }
-    */
-
     // --- NEW: Function to process user query using a Generative AI ---
     async function processUserQueryWithGenAI(query) {
         // Step 1: Gather the current NASA data for context
-        // In a real app, you would fetch this live. Here, we simulate it.
-        farmData.soilMoisture = (Math.random() * 0.4 + 0.1).toFixed(2); // Simulate 0.1 to 0.5
-        farmData.ndvi = (Math.random() * 0.4 + 0.5).toFixed(2);       // Simulate 0.5 to 0.9
+        farmData.soilMoisture = (Math.random() * 0.4 + 0.1).toFixed(2);
+        farmData.ndvi = (Math.random() * 0.4 + 0.5).toFixed(2);
         farmData.rainfall = Math.random() > 0.7 ? (Math.random() * 10).toFixed(1) : 0;
         updateDashboard(farmData.soilMoisture, farmData.ndvi);
 
         // Step 2: Construct the prompt for the AI
         const systemPrompt = `You are TerraBot, an expert farm advisor. Your answers must be based *only* on the NASA data provided. Provide a clear, concise recommendation followed by a brief explanation citing the data.`;
         
+        // --- MODIFIED: Added location data to the user prompt ---
         const userPrompt = `
             Here is the latest data for my farm:
+            - Location: ${farmData.location}
             - Soil Moisture (from NASA SMAP): ${farmData.soilMoisture} m³/m³ (A value below 0.20 is considered dry).
             - Vegetation Health (from NASA MODIS NDVI): ${farmData.ndvi} (A value above 0.6 is healthy).
             - Recent Rainfall (from NASA GPM): ${farmData.rainfall} mm.
@@ -193,7 +192,6 @@
         `;
 
         // Step 3: Call the AI API (simulated here)
-        // In a real application, you would replace this with a `fetch` call to your AI provider's API endpoint.
         try {
             const aiResponse = await getAIResponse(systemPrompt, userPrompt);
             addBotMessage(aiResponse);
@@ -203,21 +201,24 @@
         }
     }
 
-    // --- NEW: Simulated AI API Call ---
-    // Replace this function with a real API call to OpenAI, Gemini, etc.
+    // --- MODIFIED: Simulated AI API Call with improved intelligence ---
     async function getAIResponse(systemPrompt, userPrompt) {
         console.log("--- Sending to AI ---");
         console.log("System Prompt:", systemPrompt);
         console.log("User Prompt:", userPrompt);
         console.log("--------------------");
         
-        // This is a placeholder for your actual API call.
-        // It uses simple logic to simulate what a real AI would do.
         return new Promise(resolve => {
             setTimeout(() => {
                 let generatedText = "";
-                // Simple logic to mimic AI reasoning based on the provided data
-                if (userPrompt.toLowerCase().includes('irrigate') || userPrompt.toLowerCase().includes('water')) {
+                const lowerCasePrompt = userPrompt.toLowerCase();
+                
+                // --- NEW: Added logic to detect questions about location ---
+                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location') || lowerCasePrompt.includes('address')) {
+                    generatedText = `Your defined farm area is located near <strong>${farmData.location}</strong>. All the NASA data I provide is specifically tailored to this location.`;
+                } 
+                // Existing logic for irrigation
+                else if (lowerCasePrompt.includes('irrigate') || lowerCasePrompt.includes('water')) {
                     if (farmData.soilMoisture < 0.20 && farmData.rainfall == 0) {
                         generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis of the NASA SMAP data shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and the GPM satellite indicates no recent rainfall to compensate.";
                     } else if (farmData.rainfall > 5) {
@@ -225,22 +226,25 @@
                     } else {
                         generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now according to NASA SMAP data.";
                     }
-                } else if (userPrompt.toLowerCase().includes('health') || userPrompt.toLowerCase().includes('crops')) {
+                } 
+                // Existing logic for health
+                else if (lowerCasePrompt.includes('health') || lowerCasePrompt.includes('crops')) {
                      if (farmData.ndvi > 0.6) {
                         generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is in the healthy range.";
                      } else {
                          generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is lower than the optimal range. You may want to inspect the field for stress.";
                      }
-                } else {
+                } 
+                // Fallback response
+                else {
                     generatedText = "I can help with that. Based on the provided NASA data, I can analyze your farm's condition. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
                 }
                 resolve(generatedText);
-            }, 1200); // Simulate network delay
+            }, 1200);
         });
     }
 
-
-    // --- UI Update Functions ---
+    // --- UI Update Functions (No changes needed here) ---
     function addUserMessage(message) {
         const messageEl = document.createElement('div');
         messageEl.className = 'flex justify-end mb-3';
@@ -261,8 +265,7 @@
         typingIndicator.innerHTML = `<p class="text-sm">TerraBot is thinking...</p>`;
         chatHistory.appendChild(typingIndicator);
         chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        // Use a shorter delay here as the main delay is in the API call
+        
         setTimeout(() => {
             messageEl.innerHTML = `
                 <div class="bot-bubble p-3 rounded-lg">
