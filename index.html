@@ -1,298 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TerraBot - Your NASA-Powered Farm Advisor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-        .user-bubble {
-            background-color: #3b82f6; /* blue-500 */
-            color: white;
-        }
-        .bot-bubble {
-            background-color: #e5e7eb; /* gray-200 */
-            color: #1f2937; /* gray-800 */
-        }
-        .map-placeholder {
-            background-color: #d1fae5; /* green-100 */
-            border: 2px dashed #34d399; /* green-400 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #065f46; /* green-800 */
-        }
-        .chart-placeholder {
-            background-color: #e0f2fe; /* sky-100 */
-            border: 2px dashed #7dd3fc; /* sky-300 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #0c4a6e; /* sky-800 */
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraBot - Your NASA-Powered Farm Advisor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-bubble {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+        }
+        .bot-bubble {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #1f2937; /* gray-800 */
+        }
+        .map-placeholder {
+            background-color: #d1fae5; /* green-100 */
+            border: 2px dashed #34d399; /* green-400 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #065f46; /* green-800 */
+        }
+        .chart-placeholder {
+            background-color: #e0f2fe; /* sky-100 */
+            border: 2px dashed #7dd3fc; /* sky-300 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #0c4a6e; /* sky-800 */
+        }
+    </style>
 </head>
 <body class="bg-gray-100 antialiased">
 
-    <div class="container mx-auto p-4 max-w-6xl">
-        <header class="text-center mb-6">
-            <h1 class="text-4xl font-bold text-gray-800">TerraBot 🌱</h1>
-            <p class="text-lg text-gray-600 mt-2">Your NASA-Powered Farm Advisor (with GenAI)</p>
-        </header>
+    <div class="container mx-auto p-4 max-w-6xl">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-gray-800">TerraBot 🌱</h1>
+            <p class="text-lg text-gray-600 mt-2">Your NASA-Powered Farm Advisor (with GenAI)</p>
+        </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Left Column: Chat and Controls -->
-            <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col h-[75vh]">
-                <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Conversational AI Assistant</h2>
-                
-                <!-- Chat History -->
-                <div id="chat-history" class="flex-1 overflow-y-auto mb-4 p-2 bg-gray-50 rounded-md">
-                    <!-- Bot welcome message -->
-                    <div class="flex justify-start mb-3">
-                        <div class="bot-bubble p-3 rounded-lg">
-                            <p class="text-sm">Hello! I'm TerraBot. Please define your farm area on the map, then ask me a question about it. For example: "Should I irrigate today?"</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Input Area -->
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="chat-input" class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ask about your farm..." disabled>
-                    <button id="send-btn" class="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400" disabled>Send</button>
-                </div>
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+                        <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col h-[75vh]">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Conversational AI Assistant</h2>
+                
+                                <div id="chat-history" class="flex-1 overflow-y-auto mb-4 p-2 bg-gray-50 rounded-md">
+                                        <div class="flex justify-start mb-3">
+                        <div class="bot-bubble p-3 rounded-lg">
+                            <p class="text-sm">Hello! I'm TerraBot. Please define your farm area on the map, then ask me a question about it. For example: "Should I irrigate today?"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                                <div class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ask about your farm..." disabled>
+                    <button id="send-btn" class="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400" disabled>Send</button>
+                </div>
+            </div>
 
-            <!-- Right Column: Map and Dashboard -->
-            <div class="space-y-6">
-                <div class="bg-white rounded-lg shadow-lg p-4 h-[40vh] flex flex-col">
-                    <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Location & Data Layers</h2>
-                     <div id="map" class="map-placeholder flex-1 rounded-md">
-                        <div id="map-prompt">
-                            <h3 class="text-lg font-semibold">Click Here to Define Your Farm</h3>
-                            <p class="text-sm">(This simulates dropping a pin or drawing a boundary)</p>
-                        </div>
-                    </div>
-                </div>
+                        <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-4 h-[40vh] flex flex-col">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Location & Data Layers</h2>
+                     <div id="map" class="map-placeholder flex-1 rounded-md">
+                        <div id="map-prompt">
+                            <h3 class="text-lg font-semibold">Click Here to Define Your Farm</h3>
+                            <p class="text-sm">(This simulates dropping a pin or drawing a boundary)</p>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="bg-white rounded-lg shadow-lg p-4 h-[calc(35vh-1.5rem)] flex flex-col">
-                     <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Health Dashboard</h2>
-                     <div id="dashboard" class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div id="soil-moisture-chart" class="chart-placeholder rounded-md">
-                           <p class="font-semibold">Soil Moisture (SMAP)</p>
-                        </div>
-                         <div id="ndvi-chart" class="chart-placeholder rounded-md">
-                           <p class="font-semibold">Vegetation Health (MODIS)</p>
-                        </div>
-                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                <div class="bg-white rounded-lg shadow-lg p-4 h-[calc(35vh-1.5rem)] flex flex-col">
+                     <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Health Dashboard</h2>
+                     <div id="dashboard" class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div id="soil-moisture-chart" class="chart-placeholder rounded-md">
+                           <p class="font-semibold">Soil Moisture (SMAP)</p>
+                        </div>
+                         <div id="ndvi-chart" class="chart-placeholder rounded-md">
+                           <p class="font-semibold">Vegetation Health (MODIS)</p>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
-    const chatHistory = document.getElementById('chat-history');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
-    const map = document.getElementById('map');
-    const mapPrompt = document.getElementById('map-prompt');
-    const soilMoistureChart = document.getElementById('soil-moisture-chart');
-    const ndviChart = document.getElementById('ndvi-chart');
+    const chatHistory = document.getElementById('chat-history');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const map = document.getElementById('map');
+    const mapPrompt = document.getElementById('map-prompt');
+    const soilMoistureChart = document.getElementById('soil-moisture-chart');
+    const ndviChart = document.getElementById('ndvi-chart');
 
-    let farmDefined = false;
-    // --- MODIFIED: Added location to the farm data object ---
-    let farmData = {
-        soilMoisture: 0,
-        ndvi: 0,
-        rainfall: 0,
-        location: "Not set" 
-    };
+    let farmDefined = false;
+    // --- MODIFIED: Added more data points to the farm data object ---
+    let farmData = {
+        soilMoisture: 0,
+        ndvi: 0,
+        rainfall: 0,
+        location: "Not set",
+        soilAnalysis: null,
+        predictions: null
+    };
 
-    // --- Event Listeners ---
-    map.addEventListener('click', () => {
-        if (!farmDefined) {
-            defineFarm();
-        }
-    });
+    // --- Event Listeners ---
+    map.addEventListener('click', () => {
+        if (!farmDefined) {
+            defineFarm();
+        }
+    });
 
-    sendBtn.addEventListener('click', handleUserMessage);
-    chatInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            handleUserMessage();
-        }
-    });
-    
-    // --- Core Functions ---
-    function defineFarm() {
-        farmDefined = true;
-        mapPrompt.innerHTML = `
-            <h3 class="text-lg font-semibold text-green-700">✅ Farm Location Set!</h3>
-            <p class="text-sm">Fetching NASA data for your location...</p>
-        `;
-        map.classList.remove('map-placeholder');
-        map.style.backgroundImage = "url('https://placehold.co/600x400/34d399/FFFFFF?text=Farm+Area')";
-        map.style.backgroundSize = "cover";
+    sendBtn.addEventListener('click', handleUserMessage);
+    chatInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            handleUserMessage();
+        }
+    });
+    
+    // --- Core Functions ---
+    function defineFarm() {
+        farmDefined = true;
+        mapPrompt.innerHTML = `
+            <h3 class="text-lg font-semibold text-green-700">✅ Farm Location Set!</h3>
+            <p class="text-sm">Fetching NASA data for your location...</p>
+        `;
+        map.classList.remove('map-placeholder');
+        map.style.backgroundImage = "url('https://placehold.co/600x400/34d399/FFFFFF?text=Farm+Area')";
+        map.style.backgroundSize = "cover";
 
-        chatInput.disabled = false;
-        sendBtn.disabled = false;
-        
-        setTimeout(() => {
-             mapPrompt.innerHTML = `<p class="text-sm bg-green-700 text-white p-2 rounded">Ready to provide insights!</p>`;
-             // --- MODIFIED: Set a simulated location when the farm is defined ---
-             farmData.location = "Kookas, Rajasthan, India";
-             farmData.soilMoisture = 0.35;
-             farmData.ndvi = 0.82;
-             updateDashboard(farmData.soilMoisture, farmData.ndvi);
-        }, 1500);
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        
+        setTimeout(() => {
+             mapPrompt.innerHTML = `<p class="text-sm bg-green-700 text-white p-2 rounded">Ready to provide insights!</p>`;
+             farmData.location = "Kookas, Rajasthan, India";
+             farmData.soilMoisture = 0.35;
+             farmData.ndvi = 0.82;
+             updateDashboard(farmData.soilMoisture, farmData.ndvi);
+        }, 1500);
 
-         addBotMessage(`Great! Your farm near ${farmData.location} is defined. I have analyzed the latest NASA data. What would you like to know?`);
-    }
+         addBotMessage(`Great! Your farm near ${farmData.location} is defined. I have analyzed the latest NASA data. What would you like to know?`);
+    }
 
-    // --- MODIFIED: Make this function async to await the AI response ---
-    async function handleUserMessage() {
-        const message = chatInput.value.trim();
-        if (message) {
-            addUserMessage(message);
-            chatInput.value = '';
-            // Await the response from the AI before proceeding
-            await processUserQueryWithGenAI(message.toLowerCase());
-        }
-    }
+    // --- MODIFIED: Make this function async to await the AI response ---
+    async function handleUserMessage() {
+        const message = chatInput.value.trim();
+        if (message) {
+            addUserMessage(message);
+            chatInput.value = '';
+            // Await the response from the AI before proceeding
+            await processUserQueryWithGenAI(message.toLowerCase());
+        }
+    }
 
-    // --- NEW: Function to process user query using a Generative AI ---
-    async function processUserQueryWithGenAI(query) {
-        // Step 1: Gather the current NASA data for context
-        farmData.soilMoisture = (Math.random() * 0.4 + 0.1).toFixed(2);
-        farmData.ndvi = (Math.random() * 0.4 + 0.5).toFixed(2);
-        farmData.rainfall = Math.random() > 0.7 ? (Math.random() * 10).toFixed(1) : 0;
-        updateDashboard(farmData.soilMoisture, farmData.ndvi);
+    // --- NEW: Function to process user query using a Generative AI ---
+    async function processUserQueryWithGenAI(query) {
+        // Step 1: Gather the current NASA data for context
+        farmData.soilMoisture = (Math.random() * 0.4 + 0.1).toFixed(2);
+        farmData.ndvi = (Math.random() * 0.4 + 0.5).toFixed(2);
+        farmData.rainfall = Math.random() > 0.7 ? (Math.random() * 10).toFixed(1) : 0;
+        updateDashboard(farmData.soilMoisture, farmData.ndvi);
 
-        // Step 2: Construct the prompt for the AI
-        const systemPrompt = `You are TerraBot, an expert farm advisor. Your answers must be based *only* on the NASA data provided. Provide a clear, concise recommendation followed by a brief explanation citing the data.`;
-        
-        // --- MODIFIED: Added location data to the user prompt ---
-        const userPrompt = `
-            Here is the latest data for my farm:
-            - Location: ${farmData.location}
-            - Soil Moisture (from NASA SMAP): ${farmData.soilMoisture} m³/m³ (A value below 0.20 is considered dry).
-            - Vegetation Health (from NASA MODIS NDVI): ${farmData.ndvi} (A value above 0.6 is healthy).
-            - Recent Rainfall (from NASA GPM): ${farmData.rainfall} mm.
+        // --- NEW: Call AI APIs for soil analysis and predictions ---
+        farmData.soilAnalysis = await callAISoilAnalysisAPI();
+        farmData.predictions = await callAIPredictionsAPI();
 
-            My question is: "${query}"
-        `;
+        // Step 2: Construct the prompt for the AI
+        const systemPrompt = `You are TerraBot, an expert farm advisor. Your answers must be based *only* on the NASA data provided. Provide a clear, concise recommendation followed by a brief explanation citing the data.`;
+        
+        const userPrompt = `
+            Here is the latest data for my farm:
+            - Location: ${farmData.location}
+            - Soil Moisture (from NASA SMAP): ${farmData.soilMoisture} m³/m³ (A value below 0.20 is considered dry).
+            - Vegetation Health (from NASA MODIS NDVI): ${farmData.ndvi} (A value above 0.6 is healthy).
+            - Recent Rainfall (from NASA GPM): ${farmData.rainfall} mm.
+            - AI Soil Analysis: ${JSON.stringify(farmData.soilAnalysis)}
+            - AI Predictions: ${JSON.stringify(farmData.predictions)}
 
-        // Step 3: Call the AI API (simulated here)
-        try {
-            const aiResponse = await getAIResponse(systemPrompt, userPrompt);
-            addBotMessage(aiResponse);
-        } catch (error) {
-            console.error("Error fetching AI response:", error);
-            addBotMessage("I'm sorry, I'm having trouble connecting to my AI core right now. Please try again later.");
-        }
-    }
+            My question is: "${query}"
+        `;
 
-    // --- MODIFIED: Simulated AI API Call with improved intelligence ---
-    async function getAIResponse(systemPrompt, userPrompt) {
-        console.log("--- Sending to AI ---");
-        console.log("System Prompt:", systemPrompt);
-        console.log("User Prompt:", userPrompt);
-        console.log("--------------------");
-        
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let generatedText = "";
-                const lowerCasePrompt = userPrompt.toLowerCase();
-                
-                // --- NEW: Added logic to detect questions about location ---
-                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location') || lowerCasePrompt.includes('address')) {
-                    generatedText = `Your defined farm area is located near <strong>${farmData.location}</strong>. All the NASA data I provide is specifically tailored to this location.`;
-                } 
-                // Existing logic for irrigation
-                else if (lowerCasePrompt.includes('irrigate') || lowerCasePrompt.includes('water')) {
-                    if (farmData.soilMoisture < 0.20 && farmData.rainfall == 0) {
-                        generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis of the NASA SMAP data shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and the GPM satellite indicates no recent rainfall to compensate.";
-                    } else if (farmData.rainfall > 5) {
-                        generatedText = "<strong>Recommendation: Do not irrigate.</strong><br>The NASA GPM mission data shows significant recent rainfall of " + farmData.rainfall + " mm. Your soil moisture is adequate.";
-                    } else {
-                        generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now according to NASA SMAP data.";
-                    }
-                } 
-                // Existing logic for health
-                else if (lowerCasePrompt.includes('health') || lowerCasePrompt.includes('crops')) {
-                     if (farmData.ndvi > 0.6) {
-                        generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is in the healthy range.";
-                     } else {
-                         generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is lower than the optimal range. You may want to inspect the field for stress.";
-                     }
-                } 
-                // Fallback response
-                else {
-                    generatedText = "I can help with that. Based on the provided NASA data, I can analyze your farm's condition. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
-                }
-                resolve(generatedText);
-            }, 1200);
-        });
-    }
+        // Step 3: Call the AI API (simulated here)
+        try {
+            const aiResponse = await getAIResponse(systemPrompt, userPrompt);
+            addBotMessage(aiResponse);
+        } catch (error) {
+            console.error("Error fetching AI response:", error);
+            addBotMessage("I'm sorry, I'm having trouble connecting to my AI core right now. Please try again later.");
+        }
+    }
 
-    // --- UI Update Functions (No changes needed here) ---
-    function addUserMessage(message) {
-        const messageEl = document.createElement('div');
-        messageEl.className = 'flex justify-end mb-3';
-        messageEl.innerHTML = `
-            <div class="user-bubble p-3 rounded-lg">
-                <p class="text-sm">${message}</p>
-            </div>
-        `;
-        chatHistory.appendChild(messageEl);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
+    // --- MODIFIED: Simulated AI API Call with improved intelligence ---
+    async function getAIResponse(systemPrompt, userPrompt) {
+        console.log("--- Sending to AI ---");
+        console.log("System Prompt:", systemPrompt);
+        console.log("User Prompt:", userPrompt);
+        console.log("--------------------");
+        
+        return new Promise(resolve => {
+            setTimeout(() => {
+                let generatedText = "";
+                const lowerCasePrompt = userPrompt.toLowerCase();
+                
+                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location') || lowerCasePrompt.includes('address')) {
+                    generatedText = `Your defined farm area is located near <strong>${farmData.location}</strong>. All the NASA data I provide is specifically tailored to this location.`;
+                } 
+                else if (lowerCasePrompt.includes('irrigate') || lowerCasePrompt.includes('water')) {
+                    if (farmData.soilMoisture < 0.20 && farmData.rainfall == 0) {
+                        generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis of the NASA SMAP data shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and the GPM satellite indicates no recent rainfall to compensate.";
+                    } else if (farmData.rainfall > 5) {
+                        generatedText = "<strong>Recommendation: Do not irrigate.</strong><br>The NASA GPM mission data shows significant recent rainfall of " + farmData.rainfall + " mm. Your soil moisture is adequate.";
+                    } else {
+                        generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now according to NASA SMAP data.";
+                    }
+                } 
+                else if (lowerCasePrompt.includes('health') || lowerCasePrompt.includes('crops')) {
+                     if (farmData.ndvi > 0.6) {
+                        generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is in the healthy range.";
+                     } else {
+                         generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is lower than the optimal range. You may want to inspect the field for stress.";
+                     }
+                } 
+                // --- NEW: Added logic for new AI capabilities ---
+                else if (lowerCasePrompt.includes('soil analysis') || lowerCasePrompt.includes('soil health')) {
+                    generatedText = `<strong>AI Soil Analysis:</strong><br>
+                        <ul>
+                            <li>Composition: ${farmData.soilAnalysis.composition}</li>
+                            <li>Nitrogen (N): ${farmData.soilAnalysis.nutrients.N}</li>
+                            <li>Phosphorus (P): ${farmData.soilAnalysis.nutrients.P}</li>
+                            <li>Potassium (K): ${farmData.soilAnalysis.nutrients.K}</li>
+                        </ul>
+                        <p>Overall Health: ${farmData.soilAnalysis.overallHealth}</p>`;
+                }
+                else if (lowerCasePrompt.includes('predictions') || lowerCasePrompt.includes('forecast')) {
+                    generatedText = `<strong>AI Predictions for the next 14 days:</strong><br>
+                        <ul>
+                            <li>Estimated Yield: ${farmData.predictions.yield}</li>
+                            <li>Pest Risk: ${farmData.predictions.pestRisk}</li>
+                            <li>Optimal Harvest Window: ${farmData.predictions.harvestWindow}</li>
+                        </ul>`;
+                }
+                else if (lowerCasePrompt.includes('advice') || lowerCasePrompt.includes('what should i do')) {
+                    generatedText = `<strong>AI Farming Advisor Recommendation:</strong><br>
+                        <p>${farmData.predictions.advisor}</p>`;
+                }
+                else {
+                    generatedText = "I can help with that. Based on the provided NASA data, I can analyze your farm's condition. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
+                }
+                resolve(generatedText);
+            }, 1200);
+        });
+    }
 
-    function addBotMessage(message) {
-        const messageEl = document.createElement('div');
-        messageEl.className = 'flex justify-start mb-3';
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'bot-bubble p-3 rounded-lg animate-pulse';
-        typingIndicator.innerHTML = `<p class="text-sm">TerraBot is thinking...</p>`;
-        chatHistory.appendChild(typingIndicator);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-        
-        setTimeout(() => {
-            messageEl.innerHTML = `
-                <div class="bot-bubble p-3 rounded-lg">
-                    ${message}
-                </div>
-            `;
-            chatHistory.replaceChild(messageEl, typingIndicator);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }, 800); 
-    }
+    // --- NEW: Simulated AI API call functions ---
+    async function callAISoilAnalysisAPI() {
+        // Simulates a call to /api/ai/soil-analysis
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    composition: "Loamy Sand",
+              _      nutrients: { N: "Optimal", P: "Slightly Low", K: "Optimal" },
+                    overallHealth: "Good, but consider a phosphorus supplement."
+    _            });
+            }, 500);
+        });
+    }
 
-    function updateDashboard(soilMoisture, ndvi) {
-        if (soilMoisture !== null) {
-            soilMoistureChart.innerHTML = `
-                <p class="font-semibold text-lg">${soilMoisture}</p>
-                <p class="text-sm text-gray-600">Soil Moisture (m³/m³)</p>
-            `;
-        }
-        if (ndvi !== null) {
-            ndviChart.innerHTML = `
-                 <p class="font-semibold text-lg">${ndvi}</p>
-                <p class="text-sm text-gray-600">Vegetation Index (NDVI)</p>
-            `;
-        }
-    }
+    async function callAIPredictionsAPI() {
+        // Simulates a call to /api/ai/predictions and /api/ai/farming-advisor
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve({
+                    yield: "95-105 bushels/acre",
+                    pestRisk: "Low",
+                    harvestWindow: "October 15-25",
+                    advisor: "Given the low phosphorus and upcoming dry spell, a light round of fertilization is recommended in the next 3-5 days."
+                });
+            }, 700);
+        });
+    }
+
+    // --- UI Update Functions (No changes needed here) ---
+    function addUserMessage(message) {
+        const messageEl = document.createElement('div');
+        messageEl.className = 'flex justify-end mb-3';
+        messageEl.innerHTML = `
+            <div class="user-bubble p-3 rounded-lg">
+                <p class="text-sm">${message}</p>
+            </div>
+        `;
+        chatHistory.appendChild(messageEl);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function addBotMessage(message) {
+        const messageEl = document.createElement('div');
+        messageEl.className = 'flex justify-start mb-3';
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'bot-bubble p-3 rounded-lg animate-pulse';
+        typingIndicator.innerHTML = `<p class="text-sm">TerraBot is thinking...</p>`;
+        chatHistory.appendChild(typingIndicator);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        
+        setTimeout(() => {
+            messageEl.innerHTML = `
+                <div class="bot-bubble p-3 rounded-lg">
+                    ${message}
+                </div>
+            `;
+            chatHistory.replaceChild(messageEl, typingIndicator);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }, 800); 
+    }
+
+    function updateDashboard(soilMoisture, ndvi) {
+        if (soilMoisture !== null) {
+            soilMoistureChart.innerHTML = `
+                <p class="font-semibold text-lg">${soilMoisture}</p>
+                <p class="text-sm text-gray-600">Soil Moisture (m³/m³)</p>
+            `;
+        }
+        if (ndvi !== null) {
+            ndviChart.innerHTML = `
+                 <p class="font-semibold text-lg">${ndvi}</p>
+                <p class="text-sm text-gray-600">Vegetation Index (NDVI)</p>
+            `;
+        }
+    }
 
 </script>
 </body>
 </html>
-
