@@ -71,7 +71,8 @@
             </div>
 
             <div class="flex flex-col gap-6 h-[80vh]">
-                <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col flex-[2]"> <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Location & Data Layers</h2>
+                <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col flex-[2]">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Location & Data Layers</h2>
                      <div id="map" class="map-placeholder flex-1 rounded-md cursor-pointer">
                          <div id="map-prompt">
                              <h3 class="text-lg font-semibold">Click Here to Define Your Farm</h3>
@@ -80,7 +81,8 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col flex-[1]"> <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Health Dashboard</h2>
+                <div class="bg-white rounded-lg shadow-lg p-4 flex flex-col flex-[1]">
+                     <h2 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Farm Health Dashboard</h2>
                      <div id="dashboard" class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div id="soil-moisture-chart" class="chart-placeholder rounded-md">
                             <p class="font-semibold">Soil Moisture (SMAP)</p>
@@ -113,29 +115,19 @@
         predictions: null
     };
 
-    // --- Event Listeners ---
     map.addEventListener('click', () => {
-        if (!farmDefined) {
-            defineFarm();
-        }
+        if (!farmDefined) defineFarm();
     });
 
     sendBtn.addEventListener('click', handleUserMessage);
     chatInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            handleUserMessage();
-        }
+        if (event.key === 'Enter') handleUserMessage();
     });
     
-    // --- Core Functions ---
     function defineFarm() {
         farmDefined = true;
-        mapPrompt.innerHTML = `
-            <h3 class="text-lg font-semibold text-green-700">✅ Farm Location Set!</h3>
-            <p class="text-sm">Fetching NASA data for your location...</p>
-        `;
-        map.classList.remove('map-placeholder');
-        map.classList.remove('cursor-pointer');
+        mapPrompt.innerHTML = `<h3 class="text-lg font-semibold text-green-700">✅ Farm Location Set!</h3><p class="text-sm">Fetching NASA data...</p>`;
+        map.classList.remove('map-placeholder', 'cursor-pointer');
         map.style.backgroundImage = "url('https://placehold.co/600x400/34d399/FFFFFF?text=Farm+Area')";
         map.style.backgroundPosition = "center";
         map.style.backgroundSize = "cover";
@@ -171,11 +163,21 @@
         farmData.soilAnalysis = await callAISoilAnalysisAPI();
         farmData.predictions = await callAIPredictionsAPI();
 
-        const systemPrompt = `You are TerraBot, an expert farm advisor...`;
-        const userPrompt = `Here is the latest data for my farm... My question is: "${query}"`;
+        const systemPrompt = `You are TerraBot, an expert farm advisor. Your answers must be based *only* on the NASA data provided. Provide a clear, concise recommendation followed by a brief explanation citing the data.`;
+        
+        const userPrompt = `
+            Here is the latest data for my farm:
+            - Location: ${farmData.location}
+            - Soil Moisture (SMAP): ${farmData.soilMoisture} m³/m³
+            - Vegetation Health (NDVI): ${farmData.ndvi}
+            - Recent Rainfall (GPM): ${farmData.rainfall} mm
+            - AI Soil Analysis: ${JSON.stringify(farmData.soilAnalysis)}
+            - AI Predictions: ${JSON.stringify(farmData.predictions)}
+        `;
 
         try {
-            const aiResponse = await getAIResponse(systemPrompt, userPrompt);
+            // *** FIX: Pass the user's raw 'query' to the AI response function ***
+            const aiResponse = await getAIResponse(query, systemPrompt, userPrompt);
             addBotMessage(aiResponse);
         } catch (error) {
             console.error("Error fetching AI response:", error);
@@ -183,62 +185,70 @@
         }
     }
 
-    async function getAIResponse(systemPrompt, userPrompt) {
+    // *** FIX: This function now accepts the 'query' separately ***
+    async function getAIResponse(query, systemPrompt, userPrompt) {
         console.log("--- Sending to AI ---");
+        console.log("User's direct query:", query);
+        console.log("Full context prompt:", userPrompt);
+        console.log("--------------------");
         
         return new Promise(resolve => {
             setTimeout(() => {
                 let generatedText = "";
-                const lowerCasePrompt = userPrompt.toLowerCase();
                 
-                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location')) {
+                // *** FIX: All checks are now performed on the 'query' variable ***
+                if (query.includes('where') || query.includes('location') || query.includes('address')) {
                     generatedText = `Your defined farm area is located near <strong>${farmData.location}</strong>. All the NASA data I provide is specifically tailored to this location.`;
-                } else if (lowerCasePrompt.includes('irrigate') || lowerCasePrompt.includes('water')) {
+                
+                } else if (query.includes('irrigate') || query.includes('water')) {
                     if (farmData.soilMoisture < 0.20 && farmData.rainfall == 0) {
                         generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and there has been no recent rainfall.";
                     } else {
                         generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now.";
                     }
-                } else if (lowerCasePrompt.includes('health') || lowerCasePrompt.includes('crops')) {
+
+                } else if (query.includes('health') || query.includes('crops')) {
                      if (farmData.ndvi > 0.6) {
                          generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) is " + farmData.ndvi + ", which is in the healthy range.";
                      } else {
                            generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) is " + farmData.ndvi + ", which is lower than the optimal range.";
                      }
-                } else if (lowerCasePrompt.includes('soil analysis') || lowerCasePrompt.includes('soil health')) {
+
+                } else if (query.includes('soil analysis') || query.includes('soil health')) {
                     generatedText = `<strong>AI Soil Analysis:</strong><br>
                         <ul class="list-disc list-inside text-sm">
                             <li>Composition: ${farmData.soilAnalysis.composition}</li>
-                            <li>Nitrogen (N): ${farmData.soilAnalysis.nutrients.N}</li>
-                            <li>Phosphorus (P): ${farmData.soilAnalysis.nutrients.P}</li>
-                            <li>Potassium (K): ${farmData.soilAnalysis.nutrients.K}</li>
+                            <li>Nutrients: N (${farmData.soilAnalysis.nutrients.N}), P (${farmData.soilAnalysis.nutrients.P}), K (${farmData.soilAnalysis.nutrients.K})</li>
                         </ul>
                         <p class="text-sm mt-2"><strong>Overall Health:</strong> ${farmData.soilAnalysis.overallHealth}</p>`;
-                } else if (lowerCasePrompt.includes('predictions') || lowerCasePrompt.includes('forecast')) {
+
+                } else if (query.includes('predictions') || query.includes('forecast')) {
                     generatedText = `<strong>AI Predictions for the next 14 days:</strong><br>
                         <ul class="list-disc list-inside text-sm">
                             <li>Estimated Yield: ${farmData.predictions.yield}</li>
                             <li>Pest Risk: ${farmData.predictions.pestRisk}</li>
                             <li>Optimal Harvest Window: ${farmData.predictions.harvestWindow}</li>
                         </ul>`;
-                } else if (lowerCasePrompt.includes('advice') || lowerCasePrompt.includes('what should i do')) {
+                
+                } else if (query.includes('advice') || query.includes('what should i do')) {
                     generatedText = `<strong>AI Farming Advisor Recommendation:</strong><br>
                         <p class="text-sm">${farmData.predictions.advisor}</p>`;
-                } 
-                // *** THIS IS THE NEW, ADDED LOGIC ***
-                else if (lowerCasePrompt.includes('grow')) {
+                
+                } else if (query.includes('grow')) {
                     generatedText = `<strong>Recommended Crops for ${farmData.location}:</strong><br>
                         <p class="text-sm mt-2">Based on the <strong>${farmData.soilAnalysis.composition}</strong> soil and local climate, you could consider growing:</p>
                         <ul class="list-disc list-inside text-sm">
                             <li><strong>Millet (Bajra):</strong> Very drought-resistant and suitable for sandy soils.</li>
                             <li><strong>Mustard:</strong> A common and profitable winter crop in this region.</li>
                             <li><strong>Guar (Cluster Bean):</strong> Well-suited to the arid conditions of Rajasthan.</li>
-                        </ul>
-                        <p class="text-xs mt-2 text-gray-500">This recommendation is based on a general analysis. A detailed local assessment is advised.</p>`;
-                }
-                // *** END OF NEW LOGIC ***
-                else {
-                    generatedText = "I can help with that. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
+                        </ul>`;
+
+                // *** NEW: Added logic for temperature question ***
+                } else if (query.includes('temperature')) {
+                     generatedText = `I am monitoring soil moisture and vegetation health from NASA satellites. Currently, I do not have access to real-time soil temperature data.`;
+                
+                } else {
+                    generatedText = "I can help with that. What specific information are you looking for? You can ask about irrigation, crop health, soil analysis, predictions, or what to grow.";
                 }
                 resolve(generatedText);
             }, 1200);
@@ -270,15 +280,10 @@
         });
     }
 
-    // --- UI Update Functions ---
     function addUserMessage(message) {
         const messageEl = document.createElement('div');
         messageEl.className = 'flex justify-end mb-3';
-        messageEl.innerHTML = `
-            <div class="user-bubble p-3 rounded-lg">
-                <p class="text-sm">${message}</p>
-            </div>
-        `;
+        messageEl.innerHTML = `<div class="user-bubble p-3 rounded-lg"><p class="text-sm">${message}</p></div>`;
         chatHistory.appendChild(messageEl);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
@@ -293,11 +298,7 @@
         chatHistory.scrollTop = chatHistory.scrollHeight;
         
         setTimeout(() => {
-            messageEl.innerHTML = `
-                <div class="bot-bubble p-3 rounded-lg">
-                    ${message}
-                </div>
-            `;
+            messageEl.innerHTML = `<div class="bot-bubble p-3 rounded-lg">${message}</div>`;
             if (typingIndicator.parentNode === chatHistory) {
                 chatHistory.replaceChild(messageEl, typingIndicator);
             }
@@ -307,16 +308,10 @@
 
     function updateDashboard(soilMoisture, ndvi) {
         if (soilMoisture !== null) {
-            soilMoistureChart.innerHTML = `
-                <p class="font-semibold text-lg">${soilMoisture}</p>
-                <p class="text-sm text-gray-600">Soil Moisture (m³/m³)</p>
-            `;
+            soilMoistureChart.innerHTML = `<p class="font-semibold text-lg">${soilMoisture}</p><p class="text-sm text-gray-600">Soil Moisture (m³/m³)</p>`;
         }
         if (ndvi !== null) {
-            ndviChart.innerHTML = `
-                 <p class="font-semibold text-lg">${ndvi}</p>
-                <p class="text-sm text-gray-600">Vegetation Index (NDVI)</p>
-            `;
+            ndviChart.innerHTML = `<p class="font-semibold text-lg">${ndvi}</p><p class="text-sm text-gray-600">Vegetation Index (NDVI)</p>`;
         }
     }
 </script>
