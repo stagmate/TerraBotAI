@@ -163,67 +163,47 @@
     }
 
     async function processUserQueryWithGenAI(query) {
-        // Step 1: Gather the current NASA data for context
         farmData.soilMoisture = (Math.random() * 0.4 + 0.1).toFixed(2);
         farmData.ndvi = (Math.random() * 0.4 + 0.5).toFixed(2);
         farmData.rainfall = Math.random() > 0.7 ? (Math.random() * 10).toFixed(1) : 0;
         updateDashboard(farmData.soilMoisture, farmData.ndvi);
 
-        // --- Call AI APIs for soil analysis and predictions ---
         farmData.soilAnalysis = await callAISoilAnalysisAPI();
         farmData.predictions = await callAIPredictionsAPI();
 
-        // Step 2: Construct the prompt for the AI
-        const systemPrompt = `You are TerraBot, an expert farm advisor. Your answers must be based *only* on the NASA data provided. Provide a clear, concise recommendation followed by a brief explanation citing the data.`;
-        
-        const userPrompt = `
-            Here is the latest data for my farm:
-            - Location: ${farmData.location}
-            - Soil Moisture (from NASA SMAP): ${farmData.soilMoisture} m³/m³ (A value below 0.20 is considered dry).
-            - Vegetation Health (from NASA MODIS NDVI): ${farmData.ndvi} (A value above 0.6 is healthy).
-            - Recent Rainfall (from NASA GPM): ${farmData.rainfall} mm.
-            - AI Soil Analysis: ${JSON.stringify(farmData.soilAnalysis)}
-            - AI Predictions: ${JSON.stringify(farmData.predictions)}
+        const systemPrompt = `You are TerraBot, an expert farm advisor...`;
+        const userPrompt = `Here is the latest data for my farm... My question is: "${query}"`;
 
-            My question is: "${query}"
-        `;
-
-        // Step 3: Call the AI API (simulated here)
         try {
             const aiResponse = await getAIResponse(systemPrompt, userPrompt);
             addBotMessage(aiResponse);
         } catch (error) {
             console.error("Error fetching AI response:", error);
-            addBotMessage("I'm sorry, I'm having trouble connecting to my AI core right now. Please try again later.");
+            addBotMessage("I'm sorry, I'm having trouble connecting to my AI core right now.");
         }
     }
 
     async function getAIResponse(systemPrompt, userPrompt) {
         console.log("--- Sending to AI ---");
-        console.log("System Prompt:", systemPrompt);
-        console.log("User Prompt:", userPrompt);
-        console.log("--------------------");
         
         return new Promise(resolve => {
             setTimeout(() => {
                 let generatedText = "";
                 const lowerCasePrompt = userPrompt.toLowerCase();
                 
-                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location') || lowerCasePrompt.includes('address')) {
+                if (lowerCasePrompt.includes('where') || lowerCasePrompt.includes('location')) {
                     generatedText = `Your defined farm area is located near <strong>${farmData.location}</strong>. All the NASA data I provide is specifically tailored to this location.`;
                 } else if (lowerCasePrompt.includes('irrigate') || lowerCasePrompt.includes('water')) {
                     if (farmData.soilMoisture < 0.20 && farmData.rainfall == 0) {
-                        generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis of the NASA SMAP data shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and the GPM satellite indicates no recent rainfall to compensate.";
-                    } else if (farmData.rainfall > 5) {
-                        generatedText = "<strong>Recommendation: Do not irrigate.</strong><br>The NASA GPM mission data shows significant recent rainfall of " + farmData.rainfall + " mm. Your soil moisture is adequate.";
+                        generatedText = "<strong>Recommendation: You should irrigate.</strong><br>My analysis shows the soil moisture is low at " + farmData.soilMoisture + " m³/m³, and there has been no recent rainfall.";
                     } else {
-                        generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now according to NASA SMAP data.";
+                        generatedText = "<strong>Recommendation: No immediate irrigation is needed.</strong><br>The soil moisture level is currently " + farmData.soilMoisture + " m³/m³, which is sufficient for now.";
                     }
                 } else if (lowerCasePrompt.includes('health') || lowerCasePrompt.includes('crops')) {
                      if (farmData.ndvi > 0.6) {
-                         generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is in the healthy range.";
+                         generatedText = "<strong>Your crops appear to be in good health.</strong><br>The Vegetation Index (NDVI) is " + farmData.ndvi + ", which is in the healthy range.";
                      } else {
-                           generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) from NASA's MODIS satellite is " + farmData.ndvi + ", which is lower than the optimal range. You may want to inspect the field for stress.";
+                           generatedText = "<strong>There might be a potential issue with crop health.</strong><br>The Vegetation Index (NDVI) is " + farmData.ndvi + ", which is lower than the optimal range.";
                      }
                 } else if (lowerCasePrompt.includes('soil analysis') || lowerCasePrompt.includes('soil health')) {
                     generatedText = `<strong>AI Soil Analysis:</strong><br>
@@ -244,15 +224,27 @@
                 } else if (lowerCasePrompt.includes('advice') || lowerCasePrompt.includes('what should i do')) {
                     generatedText = `<strong>AI Farming Advisor Recommendation:</strong><br>
                         <p class="text-sm">${farmData.predictions.advisor}</p>`;
-                } else {
-                    generatedText = "I can help with that. Based on the provided NASA data, I can analyze your farm's condition. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
+                } 
+                // *** THIS IS THE NEW, ADDED LOGIC ***
+                else if (lowerCasePrompt.includes('grow')) {
+                    generatedText = `<strong>Recommended Crops for ${farmData.location}:</strong><br>
+                        <p class="text-sm mt-2">Based on the <strong>${farmData.soilAnalysis.composition}</strong> soil and local climate, you could consider growing:</p>
+                        <ul class="list-disc list-inside text-sm">
+                            <li><strong>Millet (Bajra):</strong> Very drought-resistant and suitable for sandy soils.</li>
+                            <li><strong>Mustard:</strong> A common and profitable winter crop in this region.</li>
+                            <li><strong>Guar (Cluster Bean):</strong> Well-suited to the arid conditions of Rajasthan.</li>
+                        </ul>
+                        <p class="text-xs mt-2 text-gray-500">This recommendation is based on a general analysis. A detailed local assessment is advised.</p>`;
+                }
+                // *** END OF NEW LOGIC ***
+                else {
+                    generatedText = "I can help with that. What specific information are you looking for regarding irrigation, crop health, or long-term forecasts?";
                 }
                 resolve(generatedText);
             }, 1200);
         });
     }
 
-    // --- FIX: Removed stray characters from this function ---
     async function callAISoilAnalysisAPI() {
         return new Promise(resolve => {
             setTimeout(() => {
@@ -306,7 +298,6 @@
                     ${message}
                 </div>
             `;
-            // Check if typingIndicator is still a child before replacing
             if (typingIndicator.parentNode === chatHistory) {
                 chatHistory.replaceChild(messageEl, typingIndicator);
             }
@@ -328,7 +319,6 @@
             `;
         }
     }
-
 </script>
 </body>
 </html>
